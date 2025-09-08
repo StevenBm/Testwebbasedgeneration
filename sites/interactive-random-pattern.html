@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Random Pattern Quiz</title>
+  <style>
+    iframe { border: 1px solid #ccc; margin: 5px; cursor: pointer; }
+    .options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+    .option-container { display: inline-block; position: relative; }
+    .feedback { position: absolute; top: 5px; left: 5px; font-weight: bold; color: white; background: rgba(0,0,0,0.6); padding: 2px 5px; border-radius: 3px; display: none; }
+  </style>
+</head>
+<body>
+<h2>Match this pattern:</h2>
+
+<script>
+// Helper to generate random numbers
+function rand(min, max) {
+  return (Math.random() * (max - min) + min).toFixed(2);
+}
+
+// Generate a random pattern
+function randomPattern() {
+  return {theta: rand(0, 6.28), phi: rand(0, 3.14), z: rand(-1, 1)};
+}
+
+// Build iframe HTML string
+function patternFrame(p, index, correct) {
+  return `
+    <div class="option-container" data-correct="${correct}">
+      <iframe src="https://stevenbm.github.io/Testwebbasedgeneration/?theta=${p.theta}&phi=${p.phi}&z=${p.z}" width="200" height="200"></iframe>
+      <div class="feedback"></div>
+    </div>
+  `;
+}
+
+// 1️⃣ Generate target
+let target = randomPattern();
+document.write(`<iframe src="https://stevenbm.github.io/Testwebbasedgeneration/?theta=${target.theta}&phi=${target.phi}&z=${target.z}" width="300" height="300"></iframe>`);
+
+// 2️⃣ Generate 3 distractors
+let distractors = [randomPattern(), randomPattern(), randomPattern()];
+
+// 3️⃣ Randomize correct position
+let correctIndex = Math.floor(Math.random() * 4);
+let optionsHTML = [];
+for (let i = 0; i < 4; i++) {
+  if (i === correctIndex) {
+    optionsHTML.push(patternFrame(target, i, true));
+  } else {
+    optionsHTML.push(patternFrame(distractors.pop(), i, false));
+  }
+}
+
+// 4️⃣ Display options
+document.write('<h3>Choices:</h3><div class="options">');
+document.write(optionsHTML.join(''));
+document.write('</div>');
+
+// 5️⃣ Add click handlers
+document.querySelectorAll('.option-container').forEach(container => {
+  container.addEventListener('click', () => {
+    let feedback = container.querySelector('.feedback');
+    if (container.dataset.correct === "true") {
+      feedback.textContent = "✅ Correct!";
+      feedback.style.background = "green";
+    } else {
+      feedback.textContent = "❌ Try Again!";
+      feedback.style.background = "red";
+    }
+    feedback.style.display = "block";
+  });
+});
+
+</script>
+</body>
+</html>
