@@ -1,252 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parametric Image Generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 5px;
-        }
-        input[type="number"] {
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        #canvas {
-            border: 2px solid #333;
-            display: block;
-            margin: 20px auto;
-            background: white;
-        }
-        .buttons {
-            text-align: center;
-            margin-top: 20px;
-        }
-        button {
-            background: #007cba;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin: 0 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #005a87;
-        }
-        .url-display {
-            background: #f8f8f8;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 12px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parametric Image Export</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas {
+      display: none; /* keep canvas hidden */
+    }
+    img {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Parametric Image Generator</h1>
-        <p>Generate mathematical visualizations with customizable parameters. Perfect for creating Moodle question content!</p>
-        
-        <div class="controls">
-            <div class="control-group">
-                <label for="theta">Theta (θ)</label>
-                <input type="range" id="theta" min="0" max="6.28" step="0.1" value="3.14">
-                <input type="number" id="thetaNum" min="0" max="6.28" step="0.1" value="3.14">
-            </div>
-            
-            <div class="control-group">
-                <label for="phi">Phi (φ)</label>
-                <input type="range" id="phi" min="0" max="6.28" step="0.1" value="0">
-                <input type="number" id="phiNum" min="0" max="6.28" step="0.1" value="0">
-            </div>
-            
-            <div class="control-group">
-                <label for="z">Z Offset</label>
-                <input type="range" id="z" min="-5" max="5" step="0.1" value="0">
-                <input type="number" id="zNum" min="-5" max="5" step="0.1" value="0">
-            </div>
-        </div>
-        
-        <canvas id="canvas" width="400" height="400"></canvas>
-        
-        <div class="buttons">
-            <button onclick="generateImage()">Generate Image</button>
-            <button onclick="downloadImage()">Download PNG</button>
-            <button onclick="copyURL()">Copy URL</button>
-            <button onclick="generateRandom()">Random Parameters</button>
-        </div>
-        
-        <div class="url-display" id="urlDisplay">
-            URL: <span id="currentUrl"></span>
-        </div>
-    </div>
+  <canvas id="canvas" width="400" height="400"></canvas>
+  <img id="exportedImage" alt="Generated Parametric Image">
 
-    <script>
-        // Get URL parameters on page load
-        const urlParams = new URLSearchParams(window.location.search);
-        const initTheta = parseFloat(urlParams.get('theta')) || Math.PI;
-        const initPhi = parseFloat(urlParams.get('phi')) || 0;
-        const initZ = parseFloat(urlParams.get('z')) || 0;
-        
-        // Set initial values
-        document.getElementById('theta').value = initTheta;
-        document.getElementById('thetaNum').value = initTheta;
-        document.getElementById('phi').value = initPhi;
-        document.getElementById('phiNum').value = initPhi;
-        document.getElementById('z').value = initZ;
-        document.getElementById('zNum').value = initZ;
-        
-        // Sync sliders and number inputs
-        function syncInputs() {
-            const theta = document.getElementById('theta');
-            const thetaNum = document.getElementById('thetaNum');
-            const phi = document.getElementById('phi');
-            const phiNum = document.getElementById('phiNum');
-            const z = document.getElementById('z');
-            const zNum = document.getElementById('zNum');
-            
-            theta.oninput = () => { thetaNum.value = theta.value; generateImage(); };
-            thetaNum.oninput = () => { theta.value = thetaNum.value; generateImage(); };
-            phi.oninput = () => { phiNum.value = phi.value; generateImage(); };
-            phiNum.oninput = () => { phi.value = phiNum.value; generateImage(); };
-            z.oninput = () => { zNum.value = z.value; generateImage(); };
-            zNum.oninput = () => { z.value = zNum.value; generateImage(); };
-        }
-        
-        function generateImage() {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            const theta = parseFloat(document.getElementById('theta').value);
-            const phi = parseFloat(document.getElementById('phi').value);
-            const z = parseFloat(document.getElementById('z').value);
-            
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Create gradient background
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#e3f2fd');
-            gradient.addColorStop(1, '#bbdefb');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw parametric visualization
-            drawParametricShape(ctx, theta, phi, z);
-            
-            // Update URL
-            const baseUrl = window.location.origin + window.location.pathname;
-            const newUrl = `${baseUrl}?theta=${theta}&phi=${phi}&z=${z}`;
-            document.getElementById('currentUrl').textContent = newUrl;
-            
-            // Update browser URL without refresh
-            window.history.replaceState({}, '', newUrl);
-        }
-        
-        function drawParametricShape(ctx, theta, phi, z) {
-            const centerX = 200;
-            const centerY = 200;
-            const scale = 80;
-            
-            ctx.strokeStyle = '#1976d2';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            
-            // Draw parametric spiral/wave based on parameters
-            for (let t = 0; t < 4 * Math.PI; t += 0.05) {
-                const x = centerX + scale * Math.cos(t + theta) * Math.exp(-t * 0.1) + z * 10;
-                const y = centerY + scale * Math.sin(t + phi) * Math.exp(-t * 0.1);
-                
-                if (t === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.stroke();
-            
-            // Draw additional elements based on parameters
-            ctx.fillStyle = '#f44336';
-            ctx.beginPath();
-            ctx.arc(
-                centerX + 50 * Math.cos(theta), 
-                centerY + 50 * Math.sin(phi), 
-                Math.abs(z * 5) + 5, 
-                0, 2 * Math.PI
-            );
-            ctx.fill();
-            
-            // Add parameter text
-            ctx.fillStyle = '#333';
-            ctx.font = '14px Arial';
-            ctx.fillText(`θ=${theta.toFixed(2)}, φ=${phi.toFixed(2)}, z=${z.toFixed(2)}`, 10, 30);
-        }
-        
-        function downloadImage() {
-            const canvas = document.getElementById('canvas');
-            const link = document.createElement('a');
-            link.download = `parametric_${Date.now()}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        }
-        
-        function copyURL() {
-            const url = document.getElementById('currentUrl').textContent;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('URL copied to clipboard!');
-            });
-        }
-        
-        function generateRandom() {
-            document.getElementById('theta').value = (Math.random() * 6.28).toFixed(2);
-            document.getElementById('phi').value = (Math.random() * 6.28).toFixed(2);
-            document.getElementById('z').value = ((Math.random() - 0.5) * 10).toFixed(2);
-            
-            // Update number inputs
-            document.getElementById('thetaNum').value = document.getElementById('theta').value;
-            document.getElementById('phiNum').value = document.getElementById('phi').value;
-            document.getElementById('zNum').value = document.getElementById('z').value;
-            
-            generateImage();
-        }
-        
-        // Initialize
-        syncInputs();
-        generateImage();
-    </script>
+  <script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const theta = parseFloat(urlParams.get('theta')) || Math.PI;
+    const phi = parseFloat(urlParams.get('phi')) || 0;
+    const z = parseFloat(urlParams.get('z')) || 0;
+
+    function generateImage() {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#e3f2fd');
+      gradient.addColorStop(1, '#bbdefb');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw parametric shape
+      drawParametricShape(ctx, theta, phi, z);
+
+      // Export to <img>
+      const img = document.getElementById('exportedImage');
+      img.src = canvas.toDataURL("image/png");
+    }
+
+    function drawParametricShape(ctx, theta, phi, z) {
+      const centerX = 200;
+      const centerY = 200;
+      const scale = 80;
+
+      ctx.strokeStyle = '#1976d2';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+
+      for (let t = 0; t < 4 * Math.PI; t += 0.05) {
+        const x = centerX + scale * Math.cos(t + theta) * Math.exp(-t * 0.1) + z * 10;
+        const y = centerY + scale * Math.sin(t + phi) * Math.exp(-t * 0.1);
+
+        if (t === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Circle element
+      ctx.fillStyle = '#f44336';
+      ctx.beginPath();
+      ctx.arc(
+        centerX + 50 * Math.cos(theta),
+        centerY + 50 * Math.sin(phi),
+        Math.abs(z * 5) + 5,
+        0, 2 * Math.PI
+      );
+      ctx.fill();
+    }
+
+    generateImage();
+  </script>
 </body>
 </html>
