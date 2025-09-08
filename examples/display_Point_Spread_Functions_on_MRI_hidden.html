@@ -112,6 +112,7 @@
 	var gamSlider = document.getElementById("gammaSlider");
 	const urlParams = new URLSearchParams(window.location.search);
 	const methurl = urlParams.get('method') || "eLORETA";
+	const srcnmbr = parseFloat(urlParams.get('srcnmbr')) || 0;
 	var azi = 0;
 	var elev = 0;
 	var volumeList1 = [
@@ -147,7 +148,7 @@
 	} // toggleGroup()
 	srcSlider.oninput = function () {
 		// PSF_eloreta.nii contains 1 every 50 sources, hence the 50*
-		currSrcPos = [srcPos.nodes.X[50*this.value], srcPos.nodes.Y[50*this.value], srcPos.nodes.Z[50*this.value]];
+		currSrcPos = [srcPos.nodes.X[50*srcnmbr], srcPos.nodes.Y[50*srcnmbr], srcPos.nodes.Z[50*srcnmbr]];
 		nv1.meshes[0].nodes = [
 		  {
 			name: "source",
@@ -159,7 +160,7 @@
 		  }
 		];
 		nv1.meshes[0].updateMesh(nv1.gl)
-		currentVol = this.value;
+		currentVol = srcnmbr;
 		nv1.setFrame4D(nv1.volumes[1].id, currentVol)
 		convertEucliCoord2AziElev()
 		updateCrosshairPos();
@@ -227,7 +228,7 @@
 		await nv1.addVolumeFromUrl(volumeList1[1]);
 		nv1.volumes[1].colormap = curr_crmap;
 		nv1.volumes[1].cal_min = cal_min;
-		nv1.document.labels[0].text = event.target.id.substr(1);
+		//nv1.document.labels[0].text = event.target.id.substr(1);
 		nv1.updateGLVolume();
 		nv1.setFrame4D(nv1.volumes[1].id, currentVol);
 		toggleGroup(event.target.id);
@@ -249,7 +250,7 @@
 	reset.onclick = function () {
 		nv1.setDefaults(opts, true)
 		//nv1.volumes[0].colorbarVisible = false
-		currentVol = 0;
+		currentVol = currentVol;
 		srcSlider.value = String(currentVol);
 		srcSlider.oninput()
 		minSlider.value = String(0);
@@ -298,11 +299,11 @@
 	nv1.setMeshShader(nv1.meshes[0].id, "Diffuse");
 	nv1.volumes[0].colorbarVisible = false;
 	nv1.meshes[0].colorbarVisible = false;
-	nv1.addLabel("eLORETA", 
-		{ textScale: 1.0, textAlignment: niivue.LabelTextAlignment.RIGHT, textColor: [1.0, 1.0, 1.0, 1.0], backgroundColor: [0.2, 0.2, 0.2, 0.2] }, 
-		undefined, niivue.LabelAnchorPoint.TOPRIGHT);
+	//nv1.addLabel("eLORETA", 
+	//	{ textScale: 1.0, textAlignment: niivue.LabelTextAlignment.RIGHT, textColor: [1.0, 1.0, 1.0, 1.0], backgroundColor: [0.2, 0.2, 0.2, 0.2] }, 
+	//	undefined, niivue.LabelAnchorPoint.TOPRIGHT);
 	nv1.updateGLVolume()
-	let currentVol = 0
+	let currentVol = srcnmbr
 	prevVolume.onclick = function () {
 		currentVol = nv1.getFrame4D(nv1.volumes[1].id)
 		currentVol--
@@ -345,9 +346,10 @@
 		nv1.setRenderAzimuthElevation(azi, elev);
 	}
 	convertEucliCoord2AziElev();
+	srcSlider.oninput()
 	let text1 ="_";
 	let result = text1.concat(methurl)
 	const myButton = document.getElementById(result);
 	myButton.click();
-  
+
  </script>

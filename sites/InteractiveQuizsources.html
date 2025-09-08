@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MNE / wMNE / eLORETA Quiz</title>
+<style>
+#target iframe { width: 400px; height: 400px; border: 1px solid #ccc; }
+.options { margin-top: 20px; display: flex; gap: 15px; }
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #1976d2;
+  color: white;
+}
+button:hover { background: #0d47a1; }
+.feedback {
+  margin-top: 15px;
+  font-weight: bold;
+  font-size: 18px;
+}
+</style>
+</head>
+<body>
+
+<h2>Which solver generated this image?</h2>
+<div id="target"></div>
+
+<h3>Choices:</h3>
+<div class="options" id="choices"></div>
+
+<div class="feedback" id="feedback"></div>
+
+<script>
+// --- Configuration ---
+const solvers = ["MNE", "wMNE", "eLORETA"];
+const baseURL = "../examples/display_Point_Spread_Functions_on_MRI_hidden.html";
+
+// Pick random correct solver
+let correctSolver = solvers[Math.floor(Math.random() * solvers.length)];
+let srcnmbr = Math.floor(Math.random() * 116);
+
+document.getElementById("target").innerHTML =
+  `<iframe src="${baseURL}?method=${correctSolver}&srcnmbr=${srcnmbr}"></iframe>`;
+
+// Build choice buttons dynamically
+const choicesDiv = document.getElementById("choices");
+solvers.forEach(solver => {
+  const btn = document.createElement("button");
+  btn.textContent = solver;
+  btn.addEventListener("click", () => checkAnswer(solver));
+  choicesDiv.appendChild(btn);
+});
+
+// Check answer
+function checkAnswer(selected){
+  const feedback = document.getElementById("feedback");
+  if(selected === correctSolver){
+    feedback.textContent = "✅ Correct! (" + correctSolver + ")";
+    feedback.style.color = "green";
+  } else {
+    feedback.textContent = "❌ Wrong! The correct answer was " + correctSolver;
+    feedback.style.color = "red";
+  }
+}
+</script>
+
+</body>
+</html>
