@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -110,6 +110,8 @@
 	var srcSlider = document.getElementById("srcSlider");
 	var minSlider = document.getElementById("meshMinSlider");
 	var gamSlider = document.getElementById("gammaSlider");
+	const urlParams = new URLSearchParams(window.location.search);
+    const methurl = parseFloat(urlParams.get('method')) || "eLORETA";
 	var azi = 0;
 	var elev = 0;
 	var volumeList1 = [
@@ -343,6 +345,9 @@
 		nv1.setRenderAzimuthElevation(azi, elev);
 	}
 	convertEucliCoord2AziElev();
-	
+	text1 ="_";
+	let result = text1.concat(methurl)
+	const myButton = document.getElementById(result);
+	myButton.click();
   
  </script>
