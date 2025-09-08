@@ -28,7 +28,7 @@ function randomPattern() {
 function patternFrame(p, index, correct) {
   return `
     <div class="option-container" data-correct="${correct}">
-      <iframe src="https://stevenbm.github.io/sites/Image_gen/?theta=${p.theta}&phi=${p.phi}&z=${p.z}" width="200" height="200"></iframe>
+      <iframe src="https://stevenbm.github.io/Testwebbasedgeneration/sites/Image_gen.html?theta=${p.theta}&phi=${p.phi}&z=${p.z}" width="200" height="200"></iframe>
       <div class="feedback"></div>
     </div>
   `;
@@ -36,7 +36,7 @@ function patternFrame(p, index, correct) {
 
 // 1️⃣ Generate target
 let target = randomPattern();
-document.write(`<iframe src="https://stevenbm.github.io/sites/Image_gen/?theta=${target.theta}&phi=${target.phi}&z=${target.z}" width="300" height="300"></iframe>`);
+document.write(`<iframe src="https://stevenbm.github.io/Testwebbasedgeneration/sites/Image_gen.html?theta=${target.theta}&phi=${target.phi}&z=${target.z}" width="300" height="300"></iframe>`);
 
 // 2️⃣ Generate 3 distractors
 let distractors = [randomPattern(), randomPattern(), randomPattern()];
