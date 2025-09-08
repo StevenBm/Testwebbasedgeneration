@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parametric Image Export</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #canvas {
+      display: none; /* keep canvas hidden */
+    }
+    img {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="400" height="400"></canvas>
+  <img id="exportedImage" alt="Generated Parametric Image">
+
+  <script>
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const theta = parseFloat(urlParams.get('theta')) || Math.PI;
+    const phi = parseFloat(urlParams.get('phi')) || 0;
+    const z = parseFloat(urlParams.get('z')) || 0;
+
+    function generateImage() {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#e3f2fd');
+      gradient.addColorStop(1, '#bbdefb');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw parametric shape
+      drawParametricShape(ctx, theta, phi, z);
+
+      // Export to <img>
+      const img = document.getElementById('exportedImage');
+      img.src = canvas.toDataURL("image/png");
+    }
+
+    function drawParametricShape(ctx, theta, phi, z) {
+      const centerX = 200;
+      const centerY = 200;
+      const scale = 80;
+
+      ctx.strokeStyle = '#1976d2';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+
+      for (let t = 0; t < 4 * Math.PI; t += 0.05) {
+        const x = centerX + scale * Math.cos(t + theta) * Math.exp(-t * 0.1) + z * 10;
+        const y = centerY + scale * Math.sin(t + phi) * Math.exp(-t * 0.1);
+
+        if (t === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Circle element
+      ctx.fillStyle = '#f44336';
+      ctx.beginPath();
+      ctx.arc(
+        centerX + 50 * Math.cos(theta),
+        centerY + 50 * Math.sin(phi),
+        Math.abs(z * 5) + 5,
+        0, 2 * Math.PI
+      );
+      ctx.fill();
+    }
+
+    generateImage();
+  </script>
+</body>
+</html>
