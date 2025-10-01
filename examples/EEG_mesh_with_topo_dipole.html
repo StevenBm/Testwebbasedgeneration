@@ -257,7 +257,7 @@
         sizeValue: 2.5
       }
     ];
-//	nv1.meshes[2].updateMesh(nv1.gl) 
+	//nv1.meshes[2].updateMesh(nv1.gl) 
 	if (!custBtn.checked){
 		nv1.setMeshLayerProperty(nv1.meshes[0].id, layIdx, "frame4D", 3*(srcnmbr)+oriIdx);
 		nv2.setMeshLayerProperty(nv2.meshes[0].id, layIdx, "frame4D", 3*(srcnmbr)+oriIdx);
@@ -316,16 +316,16 @@
   nv1.attachTo("gl1");
   var meshLayersList = [
     {
-      url: "https://roehrin.github.io/webapps_for_EEG_courses/src/norm_leadfield.gii",
+      url: "../src/testleadfield100.gii",
 	  colormap: "hot",
 	  colormapNegative: "electric_blue",
 	  cal_min: 0,
       cal_max: 100,
       useNegativeCmap: true,
-      opacity: 1,
+      opacity: 0.6,
     },
 	{
-      url: "https://roehrin.github.io/webapps_for_EEG_courses/src/leadfield.gii",
+      url: "../src/testleadfield100.gii",
 	  colormap: "hot",
 	  colormapNegative: "electric_blue",
 	  cal_min: 0,
@@ -375,7 +375,7 @@
   //await nv1.loadVolumes(volumeList1);
   await nv1.loadMeshes([
     {
-      url: "https://roehrin.github.io/webapps_for_EEG_courses/src/leadfield.gii",
+      url: "../src/testleadfield100.gii",
 	  layers: meshLayersList,
     },
 	{
@@ -401,7 +401,7 @@
   nv2.attachTo("gl2");
   await nv2.loadMeshes([
     {
-	  url: "https://roehrin.github.io/webapps_for_EEG_courses/src/leadfield2D.gii",
+	  url: "../src/testleadfield100.gii",
 	  layers: meshLayersList,
     },
 	{
@@ -439,7 +439,6 @@
 		srcSlider.oninput();
 	}
 	nv2.updateGLVolume()
-	maxSlider.oninput();
 	srcSlider.oninput();
 	updateCrosshairPos();
 	
