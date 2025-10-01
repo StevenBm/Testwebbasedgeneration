@@ -155,8 +155,11 @@
   const elevation = parseFloat(urlParams.get('elevation')) || 0;
   const azimuth = parseFloat(urlParams.get('srcnmbr')) || 0;
 
-  if (azimuth == 0 && elevation ==0){
+ if (azimuth == 0 && elevation ==0){
 	custBtn.checked = false;
+	}
+  else {
+	custBtn.checked = true;
 	}
 
   var nElec = 208;
@@ -185,7 +188,7 @@
   }
   aziSlider.oninput = function () {
 	if (!custBtn.checked){return;} // only rotate the dipole if custom orientation is checked
-	azi = 2*Math.PI*0.01*this.value;
+	azi = 2*Math.PI*0.01*azimuth;
 	srcSlider.oninput();
   }
   elevSlider.oninput = function () {
@@ -231,27 +234,27 @@
 	if (!custBtn.checked){
 		offset = [R*xBtn.checked, R*yBtn.checked, R*zBtn.checked];
 	} else {
-		offset = [R*Math.cos(elevation)*Math.cos(azimuth), R*Math.cos(elevation)*Math.sin(azimuth), R*Math.sin(elevation)];
+		offset = [R*Math.cos(elev)*Math.cos(azi), R*Math.cos(elev)*Math.sin(azi), R*Math.sin(elev)];
 	}
-	// nv1.meshes[2].nodes = [
+	 //nv1.meshes[2].nodes = [
      // {
-     //   name: "source",
-     //   x: currSrcPos[0],
-     //   y: currSrcPos[1],
-     //   z: currSrcPos[2],
-     //   colorValue: 1,
+     //  name: "source",
+     //  x: currSrcPos[0],
+     //  y: currSrcPos[1],
+     //  z: currSrcPos[2],
+     //  colorValue: 1,
       //  sizeValue: 5
      // },
      // {
      //   name: "target",
      //   x: currSrcPos[0]+offset[0],
      //   y: currSrcPos[1]+offset[1],
-     //   z: currSrcPos[2]+offset[2],
-     //   colorValue: 1,
-     //   sizeValue: 2.5
+      //  z: currSrcPos[2]+offset[2],
+      //  colorValue: 1,
+      //  sizeValue: 2.5
     //  }
-//    ];
-//	nv1.meshes[2].updateMesh(nv1.gl) 
+   // ];
+	//nv1.meshes[2].updateMesh(nv1.gl) 
 	if (!custBtn.checked){
 		nv1.setMeshLayerProperty(nv1.meshes[0].id, layIdx, "frame4D", 3*(srcnmbr)+oriIdx);
 		nv2.setMeshLayerProperty(nv2.meshes[0].id, layIdx, "frame4D", 3*(srcnmbr)+oriIdx);
@@ -259,7 +262,7 @@
 		// get raw lead field values
 		let values = nv1.meshes[0].layers[1].values;
 		// slice(start, end)
-		let currTopoX = values.slice(3*srcnmbr*nElec,3*srcmbr*nElec + nElec);
+		let currTopoX = values.slice(3*srcnmbr*nElec,3*srcnmbr*nElec + nElec);
 		let currTopoY = values.slice(3*srcnmbr*nElec+nElec,3*srcnmbr*nElec+2*nElec);
 		let currTopoZ = values.slice(3*srcnmbr*nElec+2*nElec,3*srcnmbr*nElec+3*nElec);
 		// compute the new topography;
@@ -432,5 +435,6 @@
 		srcSlider.oninput();
 	}
 	nv2.updateGLVolume()
-	srcSlider.oninput();
+	//srcSlider.oninput();
+	aziSlider.oninput();
 </script>
