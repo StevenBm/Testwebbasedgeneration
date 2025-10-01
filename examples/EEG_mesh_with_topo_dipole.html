@@ -156,7 +156,7 @@
   var custBtn = document.getElementById('oriCust')
   const srcnmbr = parseFloat(urlParams.get('srcnmbr')) || 0;
   const elevation = parseFloat(urlParams.get('elevation')) || 0;
-  const azimuth = parseFloat(urlParams.get('srcnmbr')) || 0;
+  const azimuth = parseFloat(urlParams.get('azimuth')) || 0;
 
   if (azimuth == 0 && elevation ==0){
 	custBtn.checked = false;
@@ -334,7 +334,7 @@
     }
   ];
   // draw dipole using connectome variable
- 
+   const offset = [R*Math.cos(2*Math.PI*0.01*elevation)*Math.cos(2*Math.PI*0.01*azimuth), R*Math.cos(2*Math.PI*0.01*elevation)*Math.sin(2*Math.PI*0.01*azimuth), R*Math.sin(2*Math.PI*0.01*elevation)]
   var dipole = {name: "dipole",
     nodeColormap: "hot",
     nodeColormapNegative: "",
@@ -358,9 +358,9 @@
       },
       {
         name: "target",
-        x: currSrcPos[0]+R,
-        y: currSrcPos[1],
-        z: currSrcPos[2],
+        x: currSrcPos[0]+offset[0],
+        y: currSrcPos[1]+offset[1],
+        z: currSrcPos[2]+offset[2],
         colorValue: 1,
         sizeValue: 2.5
       }
