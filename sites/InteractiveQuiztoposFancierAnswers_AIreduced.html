@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topography Quiz</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 1400px;
+  width: 100%;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  font-size: 32px;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+#target {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+#target iframe {
+  width: 550px;
+  height: 550px;
+  border: 3px solid #667eea;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+h3 {
+  text-align: center;
+  color: #555;
+  font-size: 24px;
+  margin-bottom: 25px;
+}
+
+.options {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.option-card {
+  flex: 1;
+  min-width: 320px;
+  max-width: 420px;
+  height: 320px;
+  border: 3px solid #ddd;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.option-card:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.option-card.selected {
+  border-color: #667eea;
+  border-width: 4px;
+  transform: scale(1.02);
+}
+
+.option-card.correct {
+  border-color: #4caf50;
+  border-width: 4px;
+  animation: correctPulse 0.5s ease;
+}
+
+.option-card.incorrect {
+  border-color: #f44336;
+  border-width: 4px;
+  animation: incorrectShake 0.5s ease;
+}
+
+.option-card.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.option-card iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.option-label {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.select-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(102, 126, 234, 0.9);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.select-overlay:hover {
+  background: rgba(102, 126, 234, 1);
+  transform: translateX(-50%) translateY(-3px);
+}
+
+.feedback {
+  text-align: center;
+  font-weight: bold;
+  font-size: 24px;
+  min-height: 40px;
+  margin-bottom: 20px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.submit-btn, .next-btn {
+  padding: 15px 40px;
+  font-size: 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.submit-btn:not(:disabled):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.next-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: none;
+}
+
+.next-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.next-btn:active {
+  transform: translateY(-1px);
+}
+
+@keyframes correctPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+@media (max-width: 1200px) {
+  #target iframe {
+    width: 100%;
+    max-width: 500px;
+    height: 500px;
+  }
+  
+  .option-card {
+    min-width: 250px;
+    height: 250px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>What was the orientation of the dipole?</h2>
+  
+  <div id="target"></div>
+  
+  <h3>Select the correct topography:</h3>
+  
+  <div class="options" id="choices"></div>
+  
+  <div class="feedback" id="feedback"></div>
+  
+  <div class="button-container">
+    <button class="submit-btn" id="submitBtn" onclick="submitAnswer()" disabled>Submit Answer</button>
+    <button class="next-btn" id="nextBtn" onclick="location.reload()">Next Question →</button>
+  </div>
+</div>
+
+<script>
+// --- Configuration ---
+const baseURL = "../examples/EEG_mesh_with_topo_hidden_AI_reduced.html";
+const dipoleURL = "../examples/EEG_mesh_with_topo_dipole.html";
+const answerURL = "../examples/EEG_mesh_with_topo_answer_AI_reduced.html";
+// Generate main question parameters
+let srcnmbr = Math.floor(Math.random() * 1156);
+let azimuth = Math.floor(Math.random() * 100);
+let elevation = 0;
+
+// Display the main question iframe
+document.getElementById("target").innerHTML =
+  `<iframe src="${baseURL}?srcnmbr=${srcnmbr}&azimuth=${azimuth}&elevation=${elevation}"></iframe>`;
+
+// Generate three options: one correct, two different
+const options = [
+  { srcnmbr: srcnmbr, azimuth: azimuth, elevation: elevation, isCorrect: true },
+  { srcnmbr: Math.floor(Math.random() * 1156), azimuth: Math.floor(Math.random() * 100), elevation: 0, isCorrect: false },
+  { srcnmbr: Math.floor(Math.random() * 1156), azimuth: Math.floor(Math.random() * 100), elevation: 0, isCorrect: false }
+];
+
+// Randomize the order of options
+const shuffledOptions = options.sort(() => Math.random() - 0.5);
+
+// Track selected option
+let selectedOption = null;
+
+// Build choice cards with iframes
+const choicesDiv = document.getElementById("choices");
+shuffledOptions.forEach((option, idx) => {
+  const card = document.createElement("div");
+  card.className = "option-card";
+  card.dataset.index = idx;
+  
+  const label = document.createElement("div");
+  label.className = "option-label";
+  label.textContent = "Option " + (idx + 1);
+  
+  const iframe = document.createElement("iframe");
+  iframe.src = `${dipoleURL}?srcnmbr=${option.srcnmbr}&azimuth=${option.azimuth}&elevation=${option.elevation}`;
+  
+  const selectBtn = document.createElement("div");
+  selectBtn.className = "select-overlay";
+  selectBtn.textContent = "Select This";
+  selectBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selectOption(idx, card);
+  });
+  
+  card.appendChild(iframe);
+  card.appendChild(label);
+  card.appendChild(selectBtn);
+  
+  choicesDiv.appendChild(card);
+});
+
+// Select option function
+function selectOption(idx, card) {
+  if (answered) return;
+  
+  // Remove previous selection
+  document.querySelectorAll(".option-card").forEach(c => c.classList.remove("selected"));
+  
+  // Mark new selection
+  card.classList.add("selected");
+  selectedOption = idx;
+  
+  // Enable submit button
+  document.getElementById("submitBtn").disabled = false;
+}
+
+// Submit answer function
+function submitAnswer() {
+  if (selectedOption === null || answered) return;
+  checkAnswer(shuffledOptions[selectedOption].isCorrect, document.querySelector(`.option-card[data-index="${selectedOption}"]`));
+}
+
+// Check answer
+let answered = false;
+
+function checkAnswer(isCorrect, clickedCard) {
+  if (answered) return;
+  answered = true;
+  
+  const feedback = document.getElementById("feedback");
+  const allCards = document.querySelectorAll(".option-card");
+
+  // 🔹 Disable only "Select This" overlays, but keep iframes interactive
+  allCards.forEach(card => {
+    const overlay = card.querySelector(".select-overlay");
+    overlay.style.pointerEvents = "none";
+    overlay.style.opacity = "0.5";
+  });
+
+  // 🔹 Swap to answer version of iframes
+  allCards.forEach((card, idx) => {
+    const opt = shuffledOptions[idx];
+    const iframe = card.querySelector("iframe");
+    iframe.src = `${answerURL}?srcnmbr=${opt.srcnmbr}&azimuth=${opt.azimuth}&elevation=${opt.elevation}`;
+  });
+
+  // 🔹 Disable submit button
+  document.getElementById("submitBtn").disabled = true;
+
+  if (isCorrect) {
+    clickedCard.classList.add("correct");
+    feedback.textContent = "✅ Correct!";
+    feedback.style.color = "#4caf50";
+  } else {
+    clickedCard.classList.add("incorrect");
+    // Highlight the correct answer
+    allCards.forEach((card, idx) => {
+      if (shuffledOptions[idx].isCorrect) {
+        card.classList.add("correct");
+      }
+    });
+    feedback.textContent = "❌ Wrong! The correct answer is highlighted in green.";
+    feedback.style.color = "#f44336";
+  }
+  
+  // Show next button
+  document.getElementById("nextBtn").style.display = "inline-block";
+}
+</script>
+</body>
+</html>

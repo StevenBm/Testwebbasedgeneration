@@ -158,12 +158,8 @@
   const srcnmbr = parseFloat(urlParams.get('srcnmbr')) || 0;
   const elevation = parseFloat(urlParams.get('elevation')) || 0;
   const azimuth = parseFloat(urlParams.get('azimuth')) || 0;
-    if (azimuth == 0 && elevation ==0){
-	custBtn.checked = false;
-	}
-  else {
-	custBtn.checked = true;
-	}
+  custBtn.checked = true;
+
   var nElec = 208;
   var layIdx = 0;
   var azi = azimuth; var elev = elevation; const R = 10;// variable for the custom dipole orientation  
@@ -437,7 +433,7 @@
 		srcSlider.value = String(srcSlider.valueAsNumber+1);
 		srcSlider.oninput();
 	}
-	nv2.updateGLVolume()
+	//nv2.updateGLVolume()
 		aziSlider.oninput();
 	updateCrosshairPos();
 </script>
