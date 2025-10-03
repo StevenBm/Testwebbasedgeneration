@@ -78,6 +78,7 @@ h3 {
   transition: all 0.3s ease;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   position: relative;
+  background: #f5f5f5;
 }
 
 .option-card:hover {
@@ -111,6 +112,12 @@ h3 {
   width: 100%;
   height: 100%;
   border: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.option-card iframe.loaded {
+  opacity: 1;
 }
 
 .option-label {
@@ -253,6 +260,7 @@ h3 {
 const baseURL = "../examples/EEG_mesh_with_topo_hidden_AI_reduced.html";
 const dipoleURL = "../examples/EEG_mesh_with_topo_dipole.html";
 const answerURL = "../examples/EEG_mesh_with_topo_answer_AI_reduced.html";
+
 // Generate main question parameters
 let srcnmbr = Math.floor(Math.random() * 1156);
 let azimuth = Math.floor(Math.random() * 100);
@@ -274,35 +282,46 @@ const shuffledOptions = options.sort(() => Math.random() - 0.5);
 
 // Track selected option
 let selectedOption = null;
+let answered = false;
 
-// Build choice cards with iframes
+// Build choice cards with lazy-loaded iframes
 const choicesDiv = document.getElementById("choices");
-shuffledOptions.forEach((option, idx) => {
-  const card = document.createElement("div");
-  card.className = "option-card";
-  card.dataset.index = idx;
-  
-  const label = document.createElement("div");
-  label.className = "option-label";
-  label.textContent = "Option " + (idx + 1);
-  
-  const iframe = document.createElement("iframe");
-  iframe.src = `${dipoleURL}?srcnmbr=${option.srcnmbr}&azimuth=${option.azimuth}&elevation=${option.elevation}`;
-  
-  const selectBtn = document.createElement("div");
-  selectBtn.className = "select-overlay";
-  selectBtn.textContent = "Select This";
-  selectBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    selectOption(idx, card);
+
+// Delay loading option iframes slightly to prioritize main iframe
+setTimeout(() => {
+  shuffledOptions.forEach((option, idx) => {
+    const card = document.createElement("div");
+    card.className = "option-card";
+    card.dataset.index = idx;
+    
+    const label = document.createElement("div");
+    label.className = "option-label";
+    label.textContent = "Option " + (idx + 1);
+    
+    const iframe = document.createElement("iframe");
+    iframe.loading = "lazy";
+    iframe.src = `${dipoleURL}?srcnmbr=${option.srcnmbr}&azimuth=${option.azimuth}&elevation=${option.elevation}`;
+    
+    // Add load event to fade in iframe
+    iframe.addEventListener("load", () => {
+      iframe.classList.add("loaded");
+    });
+    
+    const selectBtn = document.createElement("div");
+    selectBtn.className = "select-overlay";
+    selectBtn.textContent = "Select This";
+    selectBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      selectOption(idx, card);
+    });
+    
+    card.appendChild(iframe);
+    card.appendChild(label);
+    card.appendChild(selectBtn);
+    
+    choicesDiv.appendChild(card);
   });
-  
-  card.appendChild(iframe);
-  card.appendChild(label);
-  card.appendChild(selectBtn);
-  
-  choicesDiv.appendChild(card);
-});
+}, 150);
 
 // Select option function
 function selectOption(idx, card) {
@@ -326,8 +345,6 @@ function submitAnswer() {
 }
 
 // Check answer
-let answered = false;
-
 function checkAnswer(isCorrect, clickedCard) {
   if (answered) return;
   answered = true;
@@ -335,21 +352,25 @@ function checkAnswer(isCorrect, clickedCard) {
   const feedback = document.getElementById("feedback");
   const allCards = document.querySelectorAll(".option-card");
 
-  // 🔹 Disable only "Select This" overlays, but keep iframes interactive
+  // Disable only "Select This" overlays, but keep iframes interactive
   allCards.forEach(card => {
     const overlay = card.querySelector(".select-overlay");
     overlay.style.pointerEvents = "none";
     overlay.style.opacity = "0.5";
   });
 
-  // 🔹 Swap to answer version of iframes
+  // Swap to answer version of iframes
   allCards.forEach((card, idx) => {
     const opt = shuffledOptions[idx];
     const iframe = card.querySelector("iframe");
     iframe.src = `${answerURL}?srcnmbr=${opt.srcnmbr}&azimuth=${opt.azimuth}&elevation=${opt.elevation}`;
+    iframe.classList.remove("loaded");
+    iframe.addEventListener("load", () => {
+      iframe.classList.add("loaded");
+    });
   });
 
-  // 🔹 Disable submit button
+  // Disable submit button
   document.getElementById("submitBtn").disabled = true;
 
   if (isCorrect) {
