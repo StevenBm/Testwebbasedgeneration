@@ -74,9 +74,9 @@
 			<label for="meshMaxSlider">Max threshold</label>
 			<input
 				type="range"
-				min="0"
+				min="100"
 				max="1000"
-				value="0"
+				value="100"
 				class="slider"
 				id="meshMaxSlider"
 			/>
@@ -157,7 +157,7 @@
   const srcnmbr = parseFloat(urlParams.get('srcnmbr')) || 0;
   const elevation = parseFloat(urlParams.get('elevation')) || 0;
   const azimuth = parseFloat(urlParams.get('azimuth')) || 0;
-
+  const shellcolor = 120;
   if (azimuth == 0 && elevation ==0){
 	custBtn.checked = false;
 	}
@@ -249,9 +249,9 @@
       },
       {
         name: "target",
-        x: currSrcPos[0]+offset[0],
-        y: currSrcPos[1]+offset[1],
-        z: currSrcPos[2]+offset[2],
+        x: currSrcPos[0]+1.4*offset[0],
+        y: currSrcPos[1]+1.4*offset[1],
+        z: currSrcPos[2]+1.4*offset[2],
        colorValue: 1,
         sizeValue: 2.5
       }
@@ -319,16 +319,16 @@
 	  colormap: "hot",
 	  colormapNegative: "electric_blue",
 	  cal_min: 0,
-      cal_max: 150,
+      cal_max: shellcolor,
       useNegativeCmap: true,
-      opacity: 0.6,
+      opacity: 0.4,
     },
 	{
       url: "../src/testleadfield100.gii",
 	  colormap: "hot",
 	  colormapNegative: "electric_blue",
 	  cal_min: 0,
-      cal_max: 150,
+      cal_max: shellcolor,
       useNegativeCmap: true,
       opacity: 0,
     }
@@ -358,9 +358,9 @@
       },
       {
         name: "target",
-        x: currSrcPos[0]+offset[0],
-        y: currSrcPos[1]+offset[1],
-        z: currSrcPos[2]+offset[2],
+        x: currSrcPos[0]+1.4*offset[0],
+        y: currSrcPos[1]+1.4*offset[1],
+        z: currSrcPos[2]+1.4*offset[2],
         colorValue: 1,
         sizeValue: 2.5
       }
