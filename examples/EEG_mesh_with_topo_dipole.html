@@ -336,12 +336,12 @@
   // draw dipole using connectome variable
    const offset = [R*Math.cos(2*Math.PI*0.01*elevation)*Math.cos(2*Math.PI*0.01*azimuth), R*Math.cos(2*Math.PI*0.01*elevation)*Math.sin(2*Math.PI*0.01*azimuth), R*Math.sin(2*Math.PI*0.01*elevation)]
   var dipole = {name: "dipole",
-    nodeColormap: "hot",
+    nodeColormap: "red",
     nodeColormapNegative: "",
     nodeMinColor: 0,
     nodeMaxColor: 1,
     nodeScale: 1, //scale factor for node, e.g. if 2 and a node has size 3, a 6mm ball is drawn
-    edgeColormap: "hot",
+    edgeColormap: "red",
     edgeColormapNegative: "",
     edgeMin: 0,
     edgeMax: 2.5,
