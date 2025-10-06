@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Visualizer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 95vw;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+        
+        canvas {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: #fafafa;
+            display: block;
+        }
+        
+        .info {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 2px solid #333;
+        }
+        
+        .legend-line {
+            width: 30px;
+            height: 2px;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Graph Visualizer</h1>
+        <canvas id="graphCanvas" width="800" height="600"></canvas>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-circle"></div>
+                <span>Node</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line"></div>
+                <span>Connection</span>
+            </div>
+        </div>
+        <div class="info" id="info"></div>
+    </div>
+    
+    <script>
+        function getURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            const size = parseInt(params.get('size') || params.get('n'));
+            const matrixStr = params.get('matrix');
+            
+            return { size, matrixStr };
+        }
+        
+        function parseMatrix(matrixStr, size) {
+            if (!matrixStr || !size) return null;
+            
+            // Support multiple formats: comma-separated, array format, etc.
+            const cleaned = matrixStr.replace(/[\[\]]/g, '');
+            const values = cleaned.split(',').map(v => parseInt(v.trim()));
+            
+            if (values.length !== size * size) {
+                console.error(`Expected ${size * size} values, got ${values.length}`);
+                return null;
+            }
+            
+            const matrix = [];
+            for (let i = 0; i < size; i++) {
+                matrix[i] = [];
+                for (let j = 0; j < size; j++) {
+                    matrix[i][j] = values[i * size + j];
+                }
+            }
+            
+            return matrix;
+        }
+        
+        function drawGraph(matrix, size) {
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Calculate node positions in a circle
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 60;
+            
+            const nodes = [];
+            for (let i = 0; i < size; i++) {
+                const angle = (i / size) * 2 * Math.PI - Math.PI / 2;
+                nodes.push({
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle),
+                    label: i
+                });
+            }
+            
+            // Draw edges
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            let edgeCount = 0;
+            
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    if (matrix[i][j] === 1) {
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.stroke();
+                        edgeCount++;
+                        
+                        // Draw arrow
+                        const angle = Math.atan2(nodes[j].y - nodes[i].y, nodes[j].x - nodes[i].x);
+                        const arrowSize = 10;
+                        const arrowX = nodes[j].x - 25 * Math.cos(angle);
+                        const arrowY = nodes[j].y - 25 * Math.sin(angle);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(arrowX, arrowY);
+                        ctx.lineTo(
+                            arrowX - arrowSize * Math.cos(angle - Math.PI / 6),
+                            arrowY - arrowSize * Math.sin(angle - Math.PI / 6)
+                        );
+                        ctx.moveTo(arrowX, arrowY);
+                        ctx.lineTo(
+                            arrowX - arrowSize * Math.cos(angle + Math.PI / 6),
+                            arrowY - arrowSize * Math.sin(angle + Math.PI / 6)
+                        );
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Draw nodes
+            for (let i = 0; i < size; i++) {
+                ctx.fillStyle = '#667eea';
+                ctx.beginPath();
+                ctx.arc(nodes[i].x, nodes[i].y, 20, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Draw labels
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(i, nodes[i].x, nodes[i].y);
+            }
+            
+            // Display info
+            document.getElementById('info').innerHTML = 
+                `Nodes: ${size} | Edges: ${edgeCount}`;
+        }
+        
+        // Main execution
+        const { size, matrixStr } = getURLParams();
+        
+        if (!size || !matrixStr) {
+            document.querySelector('.container').innerHTML = `
+                <div class="error">
+                    <h2>⚠️ Missing Parameters</h2>
+                    <p>Please provide matrix data via URL parameters:</p>
+                    <p><code>?size=5&matrix=0,1,0,1,0,1,0,1,0,1,...</code></p>
+                    <p>Example: <code>?size=3&matrix=0,1,0,0,0,1,1,0,0</code></p>
+                </div>
+            `;
+        } else {
+            const matrix = parseMatrix(matrixStr, size);
+            
+            if (!matrix) {
+                document.querySelector('.container').innerHTML = `
+                    <div class="error">
+                        <h2>⚠️ Invalid Matrix Data</h2>
+                        <p>Could not parse the matrix. Please check your parameters.</p>
+                        <p>Expected ${size}x${size} = ${size * size} values</p>
+                    </div>
+                `;
+            } else {
+                drawGraph(matrix, size);
+            }
+        }
+    </script>
+</body>
+</html>
