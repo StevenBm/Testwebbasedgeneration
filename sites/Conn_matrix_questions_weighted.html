@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Matrix Graph Quiz</title>
+<title>Weighted Matrix Graph Quiz</title>
 <style>
 * {
   margin: 0;
@@ -59,8 +59,8 @@ h2 {
 }
 
 .matrix-display td {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   text-align: center;
   border: 1px solid #ddd;
   font-weight: 500;
@@ -68,13 +68,21 @@ h2 {
 }
 
 .matrix-display td.connected {
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
 .matrix-display td.disconnected {
   background: #f0f0f0;
   color: #999;
+}
+
+.legend {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  margin-top: 10px;
+  font-style: italic;
 }
 
 h3 {
@@ -239,7 +247,7 @@ h3 {
 </head>
 <body>
 <div class="container">
-  <h2>Match the Matrix to its Graph</h2>
+  <h2>Match the Weighted Matrix to its Graph</h2>
   
   <div id="target"></div>
   
@@ -257,9 +265,12 @@ h3 {
 
 <script>
 // --- Configuration ---
-const MATRIX_SIZE = 6; // Change this to adjust matrix size
-const density = 0.35;
-// Generate random matrix
+const MATRIX_SIZE = 6;
+const density = 0.35; // Control edge density (0-1)
+const MIN_WEIGHT = 0.1;
+const MAX_WEIGHT = 0.9;
+
+// Generate random weighted matrix
 function generateRandomMatrix(size) {
   const matrix = [];
   for (let i = 0; i < size; i++) {
@@ -268,7 +279,13 @@ function generateRandomMatrix(size) {
       if (i === j) {
         matrix[i][j] = 0; // No self-loops
       } else {
-        matrix[i][j] = Math.random() < density ? 1 : 0; // connection probability
+        if (Math.random() < density) {
+          // Generate weight with 1 significant figure (0.1 to 0.9)
+          const weight = Math.round((Math.random() * (MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT) * 10) / 10;
+          matrix[i][j] = weight;
+        } else {
+          matrix[i][j] = 0;
+        }
       }
     }
   }
@@ -282,16 +299,19 @@ function displayMatrix(matrix, size) {
     html += '<tr>';
     for (let j = 0; j < size; j++) {
       const value = matrix[i][j];
-      const cssClass = value === 1 ? 'connected' : 'disconnected';
-      html += `<td class="${cssClass}">${value}</td>`;
+      const cssClass = value > 0 ? 'connected' : 'disconnected';
+      const displayValue = value > 0 ? value.toFixed(1) : '0';
+      html += `<td class="${cssClass}">${displayValue}</td>`;
     }
     html += '</tr>';
   }
-  html += '</table></div>';
+  html += '</table>';
+  html += '<div class="legend">Edge weights shown in matrix (0 = no connection, 0.1-0.9 = weighted edges)</div>';
+  html += '</div>';
   return html;
 }
 
-// Draw graph on canvas
+// Draw weighted graph on canvas
 function drawGraph(canvas, matrix, size) {
   const ctx = canvas.getContext('2d');
   const width = 380;
@@ -316,13 +336,11 @@ function drawGraph(canvas, matrix, size) {
     });
   }
   
-  // Draw edges
-  ctx.strokeStyle = '#333';
-  ctx.lineWidth = 2;
-  
+  // Draw edges with thickness based on weight
   for (let i = 0; i < size; i++) {
     for (let j = 0; j < size; j++) {
-      if (matrix[i][j] === 1) {
+      const weight = matrix[i][j];
+      if (weight > 0) {
         const startX = nodes[i].x;
         const startY = nodes[i].y;
         const endX = nodes[j].x;
@@ -340,6 +358,12 @@ function drawGraph(canvas, matrix, size) {
         const adjustedEndX = endX - unitX * nodeRadius;
         const adjustedEndY = endY - unitY * nodeRadius;
         
+        // Line thickness based on weight (1-6 pixels)
+        const lineWidth = 1 + (weight / MAX_WEIGHT) * 5;
+        
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = lineWidth;
+        
         ctx.beginPath();
         ctx.moveTo(adjustedStartX, adjustedStartY);
         ctx.lineTo(adjustedEndX, adjustedEndY);
@@ -347,8 +371,9 @@ function drawGraph(canvas, matrix, size) {
         
         // Draw arrow
         const angle = Math.atan2(dy, dx);
-        const arrowSize = 10;
+        const arrowSize = 8 + weight * 4; // Larger arrows for thicker lines
         
+        ctx.lineWidth = Math.max(2, lineWidth * 0.7);
         ctx.beginPath();
         ctx.moveTo(adjustedEndX, adjustedEndY);
         ctx.lineTo(
