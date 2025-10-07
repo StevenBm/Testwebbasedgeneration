@@ -248,10 +248,13 @@ h3 {
 <body>
 <div class="container">
   <h2>Match the Weighted Matrix to its Graph</h2>
+  <div style="text-align: center; margin-bottom: 20px;">
+    <span style="background: rgba(102, 126, 234, 0.2); padding: 8px 16px; border-radius: 8px; font-weight: bold; color: #667eea;" id="graphType"></span>
+  </div>
   
   <div id="target"></div>
   
-  <h3>Select the correct graph visualization:</h3>
+  <h3 id="instructionText">Select the correct graph visualization:</h3>
   
   <div class="options" id="choices"></div>
   
@@ -267,9 +270,12 @@ h3 {
 // --- Configuration ---
 const MATRIX_SIZE = 6;
 const density = 0.35; // Control edge density (0-1)
-const UNDIRECTED = true; // Set to true for undirected (symmetrical) graphs
+const UNDIRECTED_FREQUENCY = 0.7; // Probability of generating an undirected graph (0-1)
 const MIN_WEIGHT = 0.1;
 const MAX_WEIGHT = 0.9;
+
+// Randomly determine if this question is undirected or directed
+const UNDIRECTED = Math.random() < UNDIRECTED_FREQUENCY;
 
 // Generate random weighted matrix
 function generateRandomMatrix(size) {
@@ -309,8 +315,18 @@ function generateRandomMatrix(size) {
 // Display matrix as table
 function displayMatrix(matrix, size) {
   let html = '<div class="matrix-display"><table>';
+  
+  // Header row with column numbers
+  html += '<tr><td class="label-cell"></td>';
+  for (let j = 0; j < size; j++) {
+    html += `<td class="label-cell">${j + 1}</td>`;
+  }
+  html += '</tr>';
+  
+  // Data rows with row numbers
   for (let i = 0; i < size; i++) {
     html += '<tr>';
+    html += `<td class="label-cell">${i + 1}</td>`;
     for (let j = 0; j < size; j++) {
       const value = matrix[i][j];
       const cssClass = value > 0 ? 'connected' : 'disconnected';
@@ -430,6 +446,14 @@ const correctMatrix = generateRandomMatrix(MATRIX_SIZE);
 
 // Display the matrix
 document.getElementById("target").innerHTML = displayMatrix(correctMatrix, MATRIX_SIZE);
+
+// Display graph type
+document.getElementById("graphType").textContent = UNDIRECTED ? "Undirected Graph" : "Directed Graph";
+
+// Update instruction text
+document.getElementById("instructionText").textContent = UNDIRECTED 
+  ? "Select the correct undirected graph visualization:" 
+  : "Select the correct directed graph visualization:";
 
 // Generate three options: one correct, two different
 const options = [
