@@ -132,11 +132,8 @@
   const azimuth = parseFloat(urlParams.get('azimuth')) || 0;
 
   // Set custom button based on URL params
-  if (azimuth === 0 && elevation === 0) {
-    elements.custBtn.checked = false;
-  } else {
+ 
     elements.custBtn.checked = true;
-  }
 
   // Constants
   const nElec = 208;
@@ -419,6 +416,7 @@
     
     nv2.updateGLVolume();
     elements.aziSlider.oninput();
+	elements.eleSlider.oninput();
   }
   
   // Start initialization

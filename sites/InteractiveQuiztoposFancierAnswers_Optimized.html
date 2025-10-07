@@ -362,7 +362,7 @@ const answerURL = "../examples/EEG_mesh_with_topo_answer_AI_reduced.html";
 // Generate main question parameters
 let srcnmbr = Math.floor(Math.random() * 1156);
 let azimuth = Math.floor(Math.random() * 100);
-let elevation = 0;
+let elevation = Math.floor(Math.random() * 100);
 
 // Display the main question iframe
 document.getElementById("target").innerHTML =
@@ -371,8 +371,8 @@ document.getElementById("target").innerHTML =
 // Generate three options: one correct, two different
 const options = [
   { srcnmbr: srcnmbr, azimuth: azimuth, elevation: elevation, isCorrect: true },
-  { srcnmbr: Math.floor(Math.random() * 1156), azimuth: Math.floor(Math.random() * 100), elevation: 0, isCorrect: false },
-  { srcnmbr: Math.floor(Math.random() * 1156), azimuth: Math.floor(Math.random() * 100), elevation: 0, isCorrect: false }
+  { srcnmbr: Math.floor(Math.random() * 1156), azimuth: azimuth, elevation: elevation, isCorrect: false },
+  { srcnmbr: Math.floor(Math.random() * 1156), azimuth: Math.floor(Math.random() * 100), elevation: Math.floor(Math.random() * 100), isCorrect: false }
 ];
 
 // Randomize the order of options

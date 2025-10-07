@@ -158,12 +158,9 @@
   const elevation = parseFloat(urlParams.get('elevation')) || 0;
   const azimuth = parseFloat(urlParams.get('azimuth')) || 0;
   const shellcolor = 120;
-  if (azimuth == 0 && elevation ==0){
-	custBtn.checked = false;
-	}
-  else {
+ 
 	custBtn.checked = true;
-	}
+
 
   var nElec = 208;
   var layIdx = 0;
@@ -440,6 +437,7 @@
 	nv2.updateGLVolume()
 	//srcSlider.oninput();
 	aziSlider.oninput();
+	eleSlider.oninput();
 	updateCrosshairPos();
 	
 </script>
