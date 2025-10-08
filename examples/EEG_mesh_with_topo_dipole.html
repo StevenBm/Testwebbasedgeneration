@@ -195,7 +195,7 @@
   }
   elevSlider.oninput = function () {
 	if (!custBtn.checked){return;} // only rotate the dipole if custom orientation is checked
-	elev = 2*Math.PI*0.01*this.value;
+	elev = 2*Math.PI*0.01*elevation;
 	srcSlider.oninput();
   }
   custBtn.onclick = function () {
