@@ -34,16 +34,65 @@ h2 {
   text-align: center;
   color: #333;
   font-size: 32px;
-  margin-bottom: 30px;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header-row h2 {
+  margin: 0;
+  flex: 1;
+  min-width: 250px;
+}
+
+.score-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+#scoreDisplay {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.reset-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
 }
 
 #target {
   display: flex;
   justify-content: center;
   margin-bottom: 30px;
-    width: 100%;
-  min-height: 550px; /* reserve space */
+  width: 100%;
+  min-height: 550px;
 }
 
 #target iframe {
@@ -67,7 +116,7 @@ h3 {
   justify-content: center;
   margin-bottom: 30px;
   flex-wrap: wrap;
-  min-height: 320px; /* reserve space */
+  min-height: 320px;
 }
 
 .option-card {
@@ -122,21 +171,6 @@ h3 {
 .option-card iframe.loaded {
   opacity: 1;
 }
-
-<!-- .option-label {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(102, 126, 234, 0.9);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  z-index: 10;
-} -->
 
 .select-overlay {
   position: absolute;
@@ -233,7 +267,6 @@ h3 {
   
   h2 {
     font-size: 28px;
-    margin-bottom: 25px;
   }
   
   #target iframe {
@@ -259,9 +292,21 @@ h3 {
     border-radius: 15px;
   }
   
+  .header-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .header-row h2 {
+    text-align: center;
+  }
+  
+  .score-controls {
+    justify-content: center;
+  }
+  
   h2 {
     font-size: 24px;
-    margin-bottom: 20px;
   }
   
   h3 {
@@ -305,7 +350,6 @@ h3 {
   
   h2 {
     font-size: 20px;
-    margin-bottom: 15px;
   }
   
   h3 {
@@ -321,11 +365,6 @@ h3 {
     height: 250px;
   }
   
- // .option-label {
- //   padding: 6px 12px;
- //   font-size: 14px;
-  //}
-  
   .select-overlay {
     padding: 8px 16px;
     font-size: 12px;
@@ -335,12 +374,28 @@ h3 {
     font-size: 20px;
     margin-bottom: 15px;
   }
+  
+  #scoreDisplay {
+    padding: 10px 18px;
+    font-size: 16px;
+  }
+  
+  .reset-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
 }
 </style>
 </head>
 <body>
 <div class="container">
-  <h2>What was the orientation of the dipole?</h2>
+  <div class="header-row">
+    <h2>What was the orientation of the dipole?</h2>
+    <div class="score-controls">
+      <div id="scoreDisplay"></div>
+      <button class="reset-btn" onclick="resetScore()">Reset Score</button>
+    </div>
+  </div>
   
   <div id="target"></div>
   
@@ -357,6 +412,36 @@ h3 {
 </div>
 
 <script>
+/* === Score Management === */
+function getScore() {
+  const correct = parseInt(sessionStorage.getItem('quizCorrect') || '0');
+  const total = parseInt(sessionStorage.getItem('quizTotal') || '0');
+  return { correct, total };
+}
+
+function updateScoreDisplay() {
+  const { correct, total } = getScore();
+  document.getElementById('scoreDisplay').textContent = `Score: ${correct}/${total}`;
+}
+
+function incrementScore(isCorrect) {
+  const { correct, total } = getScore();
+  sessionStorage.setItem('quizCorrect', isCorrect ? correct + 1 : correct);
+  sessionStorage.setItem('quizTotal', total + 1);
+  updateScoreDisplay();
+}
+
+function resetScore() {
+  if (confirm('Are you sure you want to reset your score?')) {
+    sessionStorage.removeItem('quizCorrect');
+    sessionStorage.removeItem('quizTotal');
+    updateScoreDisplay();
+  }
+}
+
+// Initialize score display on page load
+updateScoreDisplay();
+
 /* === Config === */
 const baseURL = "../examples/EEG_mesh_with_topo_hidden_AI_reduced.html";
 const dipoleURL = "../examples/EEG_mesh_with_topo_dipole.html";
@@ -405,7 +490,7 @@ setTimeout(() => {
     const card = document.createElement("div");
     card.className = "option-card";
     card.dataset.index = idx;
-    card.style.position = "relative"; // required for absolute children
+    card.style.position = "relative";
     card.style.overflow = "hidden";
 
     // visible quiz iframe (dipole view)
@@ -418,14 +503,12 @@ setTimeout(() => {
     quizIframe.style.transition = "opacity 220ms ease";
     quizIframe.style.zIndex = "1";
 
-    // answer iframe (preload target) - keep it in DOM but hidden via visibility/opacity
+    // answer iframe (preload target) - keep it in DOM but hidden
     const answerIframe = document.createElement("iframe");
     answerIframe.className = "answer-frame";
-    // NOTE: do NOT set src yet here (we will set it in the dedicated preload step),
-    // but we *do* place it in the DOM so the browser can later load it when src is assigned.
     makeCover(answerIframe);
     answerIframe.style.opacity = "0";
-    answerIframe.style.visibility = "hidden"; // ensure it's present but invisible
+    answerIframe.style.visibility = "hidden";
     answerIframe.style.transition = "opacity 220ms ease, visibility 0s linear 220ms";
     answerIframe.style.zIndex = "2";
     answerIframe.style.pointerEvents = "none";
@@ -444,11 +527,9 @@ setTimeout(() => {
     card.appendChild(selectBtn);
     choicesDiv.appendChild(card);
   });
-}, 120);
+}, 50);
 
-/* Step 2: preload answer iframes after a short idle period so initial render stays snappy.
-   We assign src and allow them to load while still invisible (visibility:hidden + opacity:0),
-   which most browsers will load (unlike display:none). */
+/* Step 2: preload answer iframes - start immediately after quiz iframes are created */
 setTimeout(() => {
   document.querySelectorAll(".option-card").forEach((card, idx) => {
     const opt = shuffledOptions[idx];
@@ -460,14 +541,10 @@ setTimeout(() => {
     // when loaded, mark it (no visual change yet)
     answerIframe.addEventListener("load", () => {
       answerIframe.dataset.loaded = "1";
-      // keep it hidden until we swap, but a tiny opacity is already set to 0
-      // we keep visibility hidden to avoid accidental interactions
       answerIframe.style.visibility = "hidden";
     });
-
-    // If load fails, still keep the src so it will try to load on reveal
   });
-}, 900); // < 1s delay - tune if needed for very slow networks */
+}, 200);
 
 /* --- selection helpers --- */
 function selectOption(idx, card) {
@@ -499,7 +576,7 @@ function checkAnswer(isCorrect, clickedCard) {
     overlay.style.opacity = "0.5";
   });
 
-  // swap with smooth fade. If an answer iframe didn't finish loading, it will still load now.
+  // swap with smooth fade
   allCards.forEach((card) => {
     const quizFrame = card.querySelector(".quiz-frame");
     const answerFrame = card.querySelector(".answer-frame");
@@ -508,15 +585,12 @@ function checkAnswer(isCorrect, clickedCard) {
     quizFrame.style.pointerEvents = "none";
     quizFrame.style.opacity = "0";
 
-    // reveal answer frame after the fade out (short delay to let opacity animate)
+    // reveal answer frame after the fade out
     setTimeout(() => {
-      // make answer visible and interactive
       answerFrame.style.visibility = "visible";
       answerFrame.style.pointerEvents = "auto";
-
-      // set opacity to 1 (will animate)
       answerFrame.style.opacity = "1";
-    }, 180); // match the transition time
+    }, 180);
   });
 
   // disable submit button immediately
@@ -535,14 +609,18 @@ function checkAnswer(isCorrect, clickedCard) {
     feedback.style.color = "#f44336";
   }
 
+  // Update score
+  incrementScore(isCorrect);
+
   // show next
   document.getElementById("nextBtn").style.display = "inline-block";
 }
 
-/* expose functions globally (so your HTML buttons still work) */
+/* expose functions globally */
 window.submitAnswer = submitAnswer;
 window.locationReload = () => location.reload();
 window.selectOption = selectOption;
+window.resetScore = resetScore;
 </script>
 
 </body>
