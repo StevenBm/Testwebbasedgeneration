@@ -185,8 +185,8 @@ function displayMatrix(matrix, size) {
 // Draw weighted graph on canvas
 function drawGraph(canvas, matrix, size, nodePositions = null) {
   const ctx = canvas.getContext('2d');
-  const width = 300;
-  const height = 300;
+  const width = 280;
+  const height = 280;
   canvas.width = width;
   canvas.height = height;
   
@@ -466,9 +466,9 @@ shuffledOptions.forEach((option, idx) => {
   card.className = "option-card";
   card.dataset.index = idx;
   
-  const label = document.createElement("div");
-  label.className = "option-label";
-  label.textContent = "Option " + (idx + 1);
+  //const label = document.createElement("div");
+  //label.className = "option-label";
+  //label.textContent = "Option " + (idx + 1);
   
   const canvas = document.createElement("canvas");
   drawGraph(canvas, option.matrix, MATRIX_SIZE, sharedNodePositions);
@@ -482,7 +482,7 @@ shuffledOptions.forEach((option, idx) => {
   });
   
   card.appendChild(canvas);
-  card.appendChild(label);
+  //card.appendChild(label);
   card.appendChild(selectBtn);
   
   choicesDiv.appendChild(card);
