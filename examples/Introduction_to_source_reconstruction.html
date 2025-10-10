@@ -61,10 +61,31 @@
 	<br> <br>The terminology and mathematical formulas will follow the notation in (<a href="https://doi.org/10.1186/1743-0003-5-25" target="_blank" rel="noopener noreferrer">Grech et al., 2008</a>) <br><br>
 	
 	<h2>Forward problem </h2>
-	To be able to transform the electrical signals measured on the EEG to the source space, we have to know how the activity of sources are represented on the scalp. This is the so-called forward problem. First, we have to define how the sources are represented. 
-	The best approximation that we currently have is that sources can be represented by a dipole. A dipole consists of two point charges of opposite polarity separated by a small distance in space. Consequently, a dipole has both a magnitude and a direction and can be described as a vector. In the diagram below, adapted from (<a href="https://doi.org/10.1186/1743-0003-5-25" target="_blank" rel="noopener noreferrer">Grech et al., 2008</a>), a three layer approximation of the head is shown, with one dipole located at a distance  \( \mathbf{r}_{\text{dip}_1} \) from the origin
+	To transform the electrical signals recorded on the EEG into the source space (i.e., to estimate where in the brain they originated), we first need to understand how brain activity generates signals measurable at the scalp. This is known as the forward problem in EEG.<br> <br>
+
+	The first step is to define how neural sources are represented. The best current approximation models each source as an electric dipole — a pair of equal and opposite charges separated by a very small distance. Because of this structure, a dipole has both a magnitude (strength) and a direction, and can therefore be represented as a vector.
+<br> <br>
+	This dipole model is based on the properties of pyramidal neurons, which are long, oriented cells in the cerebral cortex. When many of these neurons are active and aligned, their combined electrical fields produce measurable EEG signals. Thus, the dipole serves as a simplified but biologically grounded model of how neuronal populations contribute to scalp potentials.
 	
-	<img src = "../src/New_test_source.svg" alt="Schematic source setup" class ="center"/>
+	<br> <br>
+	In the diagram below, adapted from (<a href="https://doi.org/10.1186/1743-0003-5-25" target="_blank" rel="noopener noreferrer">Grech et al., 2008</a>), a simplification of the forward problem is shown.
+
+	
+	<figure id="fig-head-model" aria-describedby="fig-caption">
+  <img
+    src="../src/New_test_source_2dir.svg"
+    alt="Schematic three-layer head model (scalp, skull, brain) with a single dipole at position r_dip_i and one measurement electrode at r. Dipole orientation decomposed into x and z axes."
+    style="max-width:100%;height:auto;"
+    title="Three-layer head model with a single dipole"
+	class ="center"
+  />
+  <figcaption id="fig-caption">
+    Diagram adapted from <a href="https://doi.org/10.1186/1743-0003-5-25" target="_blank" rel="noopener noreferrer">Grech et al., 2008</a>.
+    A three-layer approximation of the head (scalp, skull, brain) is shown with a single dipole located at position
+    \( \mathbf{r}_{\text{dip}_i} \) from the origin. In this two-dimensional plane, any dipole orientation at that location can be decomposed into two orthogonal axes,
+    \( \mathbf{e}_{\text{x}} \) and \( \mathbf{e}_{\text{z}} \). For simplicity, one measurement electrode \( \mathbf{m}_{\text{r}} \) is drawn at radius \( \mathbf{r} \).
+  </figcaption>
+</figure>
 	
 $$
 \mathbf{M} = 
